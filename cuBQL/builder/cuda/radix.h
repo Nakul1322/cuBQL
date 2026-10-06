@@ -648,6 +648,11 @@ namespace cuBQL {
       size_t cub_tempMemSize;
       uint64_t *d_primKeys_sorted = 0;
       uint32_t *d_primIDs_inMortonOrder = 0;
+      constexpr int meaningfulMortonBits = D*numMortonBits<D>::value;
+      static_assert(meaningfulMortonBits > 0 && meaningfulMortonBits <= 64,
+                    "Morton key precision must fit in uint64_t");
+      const int radixSortEndBit = buildConfig.radixSortOnlyMeaningfulBits
+        ? meaningfulMortonBits : 64;
       // with tempMem ptr null this won't do anything but return reqd
       // temp size*/
       auto rc =
@@ -657,7 +662,7 @@ namespace cuBQL {
          /*keys out:*/  d_primKeys_sorted,
          /*values in:*/ d_primIDs_unsorted,
          /*values out:*/d_primIDs_inMortonOrder,
-         numValidPrims,0,64,s);
+         numValidPrims,0,radixSortEndBit,s);
       
       // 2.3: allocate temp mem and output arrays
       void     *d_tempMem = 0;
@@ -673,7 +678,7 @@ namespace cuBQL {
          /*keys out:*/  d_primKeys_sorted,
          /*values in:*/ d_primIDs_unsorted,
          /*values out:*/d_primIDs_inMortonOrder,
-         numValidPrims,0,64,s);
+         numValidPrims,0,radixSortEndBit,s);
       rc = rc;
       // 2.5 - cleanup after sort: no longer need tempmem, or unsorted inputs
       _FREE(d_primKeys_unsorted,s,memResource);
