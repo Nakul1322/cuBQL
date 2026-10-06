@@ -21,9 +21,6 @@ namespace cuBQL {
     {}
     inline BuildConfig &enableSAH() { buildMethod = SAH; return *this; }
     inline BuildConfig &enableELH() { buildMethod = ELH; return *this; }
-    /*! Radix builder only; requires finite, nonempty primitive bounds. */
-    inline BuildConfig &enableMeaningfulMortonBitSort(bool enable=true)
-    { radixSortOnlyMeaningfulBits = enable; return *this; }
     typedef enum
       {
        /*! simple 'adaptive spatial median' strategy. When splitting a
@@ -54,7 +51,6 @@ namespace cuBQL {
     int makeLeafThreshold = 0;
 
     BuildMethod buildMethod = SPATIAL_MEDIAN;
-    bool radixSortOnlyMeaningfulBits = false;
   };
 
   /*! the most basic type of BVH where each BVH::Node is either a leaf
